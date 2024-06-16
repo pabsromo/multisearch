@@ -2,7 +2,18 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "changeDOM") {
       document.body.style.backgroundColor = request.color; // Example action
       console.log('hit the enter key and in content.js');
-      highlightText("examples", "Examples");
+      // highlightText("examples", "Examples");
+      // getAllElems();
+
+      highlightTextNodes(request.tex);
+
+      // // Get the body element to start traversing from
+      // const bodyElement = document.body;
+
+      // // Get all visible text from the body element
+      // const allVisibleText = getAllVisibleText(bodyElement);
+      // // console.log(allVisibleText);
+
       sendResponse({result: "DOM changed"});
     }
   });
@@ -41,3 +52,85 @@ function highlightText(elementId, textToHighlight) {
         element.innerHTML = innerHTML;
     }
 }
+
+function getAllElems() {
+  var all = document.getElementsByTagName("*");
+
+  for (var i=0, max=all.length; i < max; i++) {
+      console.log("------TEXT:")
+      console.log(all[i].outerText);
+      console.log();
+  }
+}
+
+function highlightTextNodes(targetString) {
+  console.log("Target string:" + targetString);
+  function getVisibleTextNodes(element) {
+      const textNodes = [];
+      function traverse(node) {
+          if (node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== '') {
+              const style = window.getComputedStyle(node.parentElement);
+              if (style.display !== 'none' && style.visibility !== 'hidden') {
+                  textNodes.push(node);
+              }
+          } else {
+              for (let child = node.firstChild; child; child = child.nextSibling) {
+                  traverse(child);
+              }
+          }
+      }
+      traverse(element);
+      return textNodes;
+  }
+
+  function highlightNode(node) {
+      const span = document.createElement('span');
+      span.classList.add('highlight');
+      span.textContent = node.textContent;
+      node.parentNode.replaceChild(span, node);
+  }
+
+  const textNodes = getVisibleTextNodes(document.body);
+  textNodes.forEach(node => {
+      if (node.textContent.includes(targetString)) {
+          highlightNode(node);
+      }
+  });
+}
+
+// // Call the function with the target string
+// highlightTextNodes('targetString');
+
+
+// // Function to recursively traverse through DOM elements
+// function getAllVisibleText(element) {
+//   let visibleText = '';
+
+//   // Check if the element is visible
+//   function isVisible(el) {
+//     return !!(
+//       el.offsetWidth ||
+//       el.offsetHeight ||
+//       el.getClientRects().length
+//     );
+//   }
+
+//   // Function to traverse through each element and gather text
+//   function traverse(node) {
+//     if (node.nodeType === Node.TEXT_NODE) {
+//       // Text node
+//       visibleText += node.textContent.trim() + ' ';
+//     } else if (node.nodeType === Node.ELEMENT_NODE) {
+//       // Element node
+//       if (isVisible(node)) {
+//         for (let child of node.childNodes) {
+//           traverse(child);
+//         }
+//       }
+//     }
+//   }
+
+//   traverse(element);
+  
+//   return visibleText.trim();
+// }

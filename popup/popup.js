@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             
             // Send a message to the content script
-            chrome.tabs.sendMessage(tabId, { action: "changeDOM", color: inputValue }, function (response) {
+            chrome.tabs.sendMessage(tabId, { action: "changeDOM", tex: inputValue }, function (response) {
               if (chrome.runtime.lastError) {
                 console.error(chrome.runtime.lastError.message);
               } else {
